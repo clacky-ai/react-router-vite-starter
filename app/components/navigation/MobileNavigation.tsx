@@ -4,6 +4,7 @@ import { useState } from "react";
 const navigationItems = [
   { to: "/", label: "首页", exact: true },
   { to: "/about", label: "关于" },
+  { to: "/posts", label: "文章" },
   { to: "/contact", label: "联系" },
 ];
 

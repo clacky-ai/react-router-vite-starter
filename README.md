@@ -11,6 +11,7 @@
 - **TypeScript** - 完整的类型支持，提高代码质量和开发效率  
 - **Tailwind CSS v3** - 实用优先的CSS框架，快速构建美观界面
 - **React Query** - 强大的数据获取和状态管理库
+- **PostgreSQL + Drizzle ORM** - 完整的数据库集成方案
 - **React Hook Form** - 高性能表单库
 - **Zod** - TypeScript 优先的模式验证库
 - **Lucide Icons** - 美观的图标库
@@ -23,12 +24,14 @@
 - ✅ **响应式设计** - 移动端和桌面端自适应布局
 - ✅ **组件化架构** - 清晰的项目结构和可复用组件
 - ✅ **表单处理** - React Hook Form + Zod 验证集成
-- ✅ **状态管理** - React Query 数据获取和缓存
+- ✅ **服务器端渲染** - 基于 React Router v7 Loaders 的 SSR
 - ✅ **活跃链接状态** - 智能导航高亮显示
 - ✅ **404 错误处理** - 优雅的页面未找到处理
 - ✅ **动画效果** - 流畅的页面过渡动画和组件动画
 - ✅ **SEO 优化** - 每个页面的 meta 标签配置
+- ✅ **数据库集成** - PostgreSQL + Drizzle ORM + SSR Loaders
 - ✅ **图标系统** - Lucide Icons 集成
+- ✅ **Express 服务器** - 生产就绪的 Node.js 服务器
 - ✅ **主题系统** - 支持亮色/暗色主题切换
 
 ## 📁 项目结构
@@ -51,15 +54,27 @@ app/
 │       └── MobileNavigation.tsx # 移动端导航
 ├── lib/                # 工具函数
 │   └── utils.ts        # shadcn/ui 工具函数
+database/               # 数据库相关文件 (新架构)
+├── context.ts          # 数据库上下文管理
+├── schema.ts           # 数据库模型定义
+└── seed.ts             # 种子数据
+server/                 # 服务器端代码
+├── app.ts              # Express 应用配置
+drizzle/                # Drizzle 迁移文件
+└── [迁移文件]          # 自动生成的迁移
 ├── pages/              # 页面组件
 │   ├── HomePage.tsx    # 首页 (展示所有特性)
 │   ├── AboutPage.tsx   # 关于页面
+│   ├── PostsPage.tsx   # 文章列表 (数据库示例)
 │   ├── ContactPage.tsx # 联系页面 (表单示例)
 │   └── NotFoundPage.tsx# 404页面
-├── routes/             # 路由文件
+├── routes/             # 路由文件 (支持 SSR loaders)
 ├── app.css             # 全局样式和主题变量
 ├── root.tsx            # 根组件
 └── routes.ts           # 路由配置
+server.js               # 服务器启动文件
+drizzle.config.ts       # Drizzle ORM 配置
+.env.example            # 环境变量示例
 ```
 
 ## 🛠️ 快速开始
@@ -86,7 +101,7 @@ npm run dev
 ### 可用脚本
 
 ```bash
-# 开发服务器
+# 开发服务器 (Express + SSR)
 npm run dev
 
 # 类型检查
@@ -97,9 +112,90 @@ npm run build
 
 # 启动生产服务器
 npm start
+
+# 数据库操作 (使用 postgres-js + Drizzle ORM)
+npm run db:generate  # 生成数据库迁移文件
+npm run db:migrate   # 运行数据库迁移
+npm run db:seed      # 填充种子数据
+npm run db:setup     # 一键设置数据库
+npm run db:studio    # 启动 Drizzle Studio
 ```
 
 ## 🎯 使用指南
+
+### PostgreSQL 数据库集成
+
+项目采用了 React Router v7 官方推荐的数据库集成模式：
+
+#### 数据库连接
+
+```typescript
+// database/context.ts - 使用 AsyncLocalStorage 管理数据库连接
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
+export const DatabaseContext = new AsyncLocalStorage<PostgresJsDatabase<typeof schema>>();
+
+export function database() {
+  const db = DatabaseContext.getStore();
+  if (!db) {
+    throw new Error("DatabaseContext not set");
+  }
+  return db;
+}
+```
+
+#### 在路由中使用数据库
+
+```typescript
+// app/routes/posts.tsx - 使用 loader 函数进行 SSR 数据获取
+import type { Route } from "./+types/posts";
+import { database } from "../../database/context.js";
+import { posts, users } from "../../database/schema.js";
+import { eq, desc } from "drizzle-orm";
+
+export async function loader({ context }: Route.LoaderArgs) {
+  const db = database();
+  
+  // 服务器端数据获取
+  const allPosts = await db
+    .select()
+    .from(posts)
+    .innerJoin(users, eq(posts.authorId, users.id))
+    .where(eq(posts.published, true))
+    .orderBy(desc(posts.createdAt));
+    
+  return { posts: allPosts };
+}
+
+export default function PostsPage({ loaderData }: Route.ComponentProps) {
+  const { posts } = loaderData;
+  
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+#### 数据库迁移和种子数据
+
+```bash
+# 生成新的迁移文件
+npm run db:generate
+
+# 运行数据库迁移
+npm run db:migrate
+
+# 填充种子数据
+npm run db:seed
+
+# 一键设置 (生成 + 迁移 + 种子)
+npm run db:setup
+```
 
 ### 使用 shadcn/ui 组件
 

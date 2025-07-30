@@ -53,9 +53,9 @@ export default function HomePage() {
     },
     {
       icon: Database,
-      title: "React Query",
-      description: "强大的数据获取和状态管理库，提供缓存和同步功能",
-      badge: "数据管理",
+      title: "PostgreSQL + React Query",
+      description: "集成 PostgreSQL 数据库和 React Query，实现完整的数据管理方案",
+      badge: "数据库集成",
       color: "text-green-600"
     },
     {
@@ -92,12 +92,14 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button size="lg" asChild>
-            <Link to="/about">
-              了解更多 <ArrowRight className="ml-2 h-4 w-4" />
+            <Link to="/posts">
+              查看文章示例 <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
           <Button variant="outline" size="lg" asChild>
-            <Link to="/contact">联系我们</Link>
+            <Link to="/about">
+              了解更多
+            </Link>
           </Button>
         </div>
       </div>
@@ -172,6 +174,77 @@ export default function HomePage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Database Integration Showcase */}
+      <div className="mt-16 py-16 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg">
+        <div className="text-center mb-12">
+          <Badge variant="secondary" className="mb-4">
+            <Database className="w-4 h-4 mr-2" />
+            数据库集成示例
+          </Badge>
+          <h2 className="text-3xl font-bold mb-4">PostgreSQL 数据库集成</h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            本模板展示了完整的 PostgreSQL 数据库集成方案，使用 Drizzle ORM 和 React Query
+          </p>
+          <div className="flex justify-center">
+            <Button asChild className="mb-8">
+              <Link to="/posts">
+                体验实时数据 <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Database className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold mb-2">Drizzle ORM</h3>
+              <p className="text-sm text-muted-foreground">
+                类型安全的 ORM，完整的 TypeScript 支持
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold mb-2">React Query</h3>
+              <p className="text-sm text-muted-foreground">
+                强大的数据获取、缓存和同步功能
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold mb-2">数据验证</h3>
+              <p className="text-sm text-muted-foreground">
+                使用 Zod 进行数据模型验证和类型推断
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Rocket className="h-6 w-6 text-yellow-600" />
+              </div>
+              <h3 className="font-semibold mb-2">种子数据</h3>
+              <p className="text-sm text-muted-foreground">
+                预置的测试数据和数据库迁移
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

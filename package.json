@@ -4,13 +4,13 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "dotenv -- node server.js",
-    "start": "dotenv -- tsx server.js",
+    "dev": "node server.js",
+    "start": "node server.js",
     "typecheck": "react-router typegen && tsc -b",
-    "db:generate": "dotenv -- drizzle-kit generate",
-    "db:migrate": "dotenv -- drizzle-kit migrate",
-    "db:seed": "dotenv -- tsx scripts/seed.ts",
-    "db:studio": "dotenv -- drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx scripts/seed.ts",
+    "db:studio": "drizzle-kit studio",
     "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {

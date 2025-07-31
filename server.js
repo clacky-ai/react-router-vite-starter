@@ -39,7 +39,47 @@ if (DEVELOPMENT) {
   );
   app.use(morgan("tiny"));
   app.use(express.static("build/client", { maxAge: "1h" }));
-  app.use(await import(BUILD_PATH).then((mod) => mod.app));
+  
+  // 在生产模式下，我们需要手动设置数据库和 React Router 处理器
+  const { drizzle } = await import("drizzle-orm/postgres-js");
+  const postgres = await import("postgres");
+  const { createRequestHandler } = await import("@react-router/express");
+  const { DatabaseContext } = await import("./database/context.js");
+  const schema = await import("./database/schema.js");
+  
+  // 获取数据库连接字符串
+  const getDatabaseUrl = () => {
+    if (process.env.DATABASE_URL) {
+      return process.env.DATABASE_URL;
+    }
+    const host = process.env.POSTGRE_SQL_INNER_HOST || "127.0.0.1";
+    const port = process.env.POSTGRE_SQL_INNER_PORT || "5432";
+    const user = process.env.POSTGRE_SQL_USER || "postgres";
+    const password = process.env.POSTGRE_SQL_PASSWORD || "sVCDmXSf";
+    const database = process.env.POSTGRE_SQL_DATABASE || "postgres";
+    return `postgres://${user}:${password}@${host}:${port}/${database}`;
+  };
+  
+  const databaseUrl = getDatabaseUrl();
+  console.log("🔗 连接数据库:", databaseUrl.replace(/:[^:@]*@/, ':***@'));
+  
+  const client = postgres.default(databaseUrl);
+  const db = drizzle(client, { schema });
+  
+  // 设置数据库上下文中间件
+  app.use((_, __, next) => DatabaseContext.run(db, next));
+  
+  // 设置 React Router 处理器
+  app.use(
+    createRequestHandler({
+      build: () => import(BUILD_PATH),
+      getLoadContext() {
+        return {
+          isDevelopment: false,
+        };
+      },
+    }),
+  );
 }
 
 app.listen(PORT, () => {
